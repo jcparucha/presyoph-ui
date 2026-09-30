@@ -1,6 +1,6 @@
 "use client";
 
-import { loginUserAction } from "@/actions/auth";
+import { registerUserAction } from "@/actions/auth";
 import Form from "@/components/Form";
 import FormInputText from "@/components/FormInput";
 import FormSubmitButton from "@/components/FormSubmitButton";
@@ -12,31 +12,33 @@ import toast from "react-hot-toast";
 interface StateValues {
     username: string | null;
     password: string | null;
+    password_confirmation: string | null;
 }
 
-export default function LoginForm() {
+export default function RegisterForm() {
     const router = useRouter();
-    const [state, formActions] = useActionState(loginUserAction, {
+    const [state, formActions] = useActionState(registerUserAction, {
         message: "",
         errors: {},
         values: {
             username: "",
             password: "",
+            password_confirmation: "",
         },
     });
 
     useEffect(() => {
         if (state?.success) {
-            toast.success(state.message);
+            toast.success("Registered successfully!");
 
             // Optional: Redirect to Dashboard
             const timeout = setTimeout(() => {
-                toast("Redirecting to dashboard!", {
+                toast("Redirecting to login!", {
+                    icon: "🏃‍♂️‍➡️",
                     duration: 4000,
                     position: "top-center",
-                    icon: "🏃‍♂️‍➡️",
                 });
-                router.push("/dashboard");
+                router.push("/login");
             }, 1500);
 
             return () => clearTimeout(timeout);
@@ -46,7 +48,7 @@ export default function LoginForm() {
     return (
         <div className="m-auto shadow-lg shadow-slate-600 border border-slate-600 rounded-md max-w-sm p-4 space-y-2 bg-slate-800/20">
             <Form
-                title="User Login"
+                title="Registration"
                 errors={state?.errors}
                 values={
                     state?.values as Record<keyof StateValues, string | null>
@@ -67,12 +69,19 @@ export default function LoginForm() {
                     type="password"
                     isRequired
                 />
-                <FormSubmitButton>Login</FormSubmitButton>
+                <FormInputText
+                    id="password_confirmation"
+                    label="Confirm Password"
+                    placeholder="Confirm password"
+                    type="password"
+                    isRequired
+                />
+                <FormSubmitButton>Register</FormSubmitButton>
                 <Link
-                    href="/register"
+                    href="/login"
                     className="text-center text-blue-400 w-full block"
                 >
-                    Create an account
+                    Already have an account?
                 </Link>
             </Form>
         </div>

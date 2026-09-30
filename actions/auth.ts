@@ -1,7 +1,5 @@
 "use server";
 
-import { redirect } from "next/navigation";
-
 export async function loginUserAction(
     initialState: object,
     formData: FormData,
@@ -43,9 +41,14 @@ export async function loginUserAction(
         // maxAge: 60 * 60 * 24 * 7, // Optional: 7 days expiration in seconds
         // });
         // }
+        return {
+            success: true,
+            message: data.message,
+        };
     } catch (error: any) {
         console.error("LOGIN_ACTION_ERROR:", error);
 
+        // TODO Add toast handling for error
         return {
             message: error?.message ?? "Something went wrong",
             errors: {
@@ -56,5 +59,68 @@ export async function loginUserAction(
         };
     }
 
-    redirect("/dashboard");
+    // redirect("/dashboard");
+}
+
+export async function registerUserAction(
+    initialState: object,
+    formData: FormData,
+) {
+    const payload = {
+        username: formData.get("username"),
+        password: formData.get("password"),
+        password_confirmation: formData.get("password_confirmation"),
+    };
+
+    try {
+        const response = await fetch(`${process.env.API_URL}/v1/register`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+            },
+            body: JSON.stringify(payload),
+        });
+
+        const data = await response.json();
+
+        console.log({ data });
+
+        if (!response.ok) {
+            return {
+                message: data.message,
+                errors: data.errors,
+                values: payload,
+            };
+        }
+
+        // TODO add token handling
+        // Set HTTP-only cookie if Laravel returns a token
+        // if (data.token) {
+        // const cookieStore = await cookies();
+        // cookieStore.set("auth_token", data.token, {
+        //   httpOnly: true,
+        //   secure: process.env.NODE_ENV === "production",
+        //   sameSite: "lax",
+        //   path: "/",
+        // maxAge: 60 * 60 * 24 * 7, // Optional: 7 days expiration in seconds
+        // });
+        // }
+        return {
+            success: true,
+            message: data.message,
+        };
+    } catch (error: any) {
+        console.error("REGISTER_ACTION_ERROR:", error);
+
+        // TODO Add toast handling for error
+        return {
+            message: error?.message ?? "Something went wrong",
+            errors: {
+                system: [
+                    `ERROR: ${error?.cause?.message ?? "Something went wrong"}`,
+                ],
+            },
+        };
+    }
 }
